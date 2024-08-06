@@ -7,7 +7,12 @@ from dotenv import load_dotenv
 load_dotenv()
 TOKEN = os.getenv('DISCORD_TOKEN')
 
-client = discord.Client()
+# Define intents
+intents = discord.Intents.default()
+intents.message_content = True  # Enable receiving message content
+
+# Create the client with intents
+client = discord.Client(intents=intents)
 
 # Function to get a random Chuck Norris joke
 def get_random_joke():
@@ -34,19 +39,35 @@ def get_joke_by_category(category):
         joke = response.json().get('value')
         return joke
     else:
-        return "Could not retrieve a joke for this category. Make sure the category is valid."
+        return f"Could not retrieve a joke for category '{category}'. Make sure the category is valid."
 
 # Function to search for jokes with a specific query
 def search_jokes(query):
-    response = requests.get(f'https://api.chucknorris.io/jokes/search?query={query}')
-    if response.status_code == 200:
-        jokes = response.json().get('result')
+    try:
+        response = requests.get(f'https://api.chucknorris.io/jokes/search?query={query}')
+        response.raise_for_status()  # Raises an exception for HTTP errors
+        data = response.json()
+        jokes = data.get('result')
         if jokes:
             return '\n'.join([joke.get('value') for joke in jokes])
         else:
-            return "No jokes found for this query."
-    else:
-        return "Could not perform search at this time."
+            return f"No jokes found for '{query}'. Try a different query!"
+    except requests.RequestException as e:
+        return f"An error occurred: {e}"
+
+# Command help message
+help_message = """
+**Chuck Norris Jokes Bot Help**
+
+Here are the commands you can use:
+
+- `!chucknorris` - Get a random Chuck Norris joke.
+- `!chucknorris category` - Get a list of available joke categories.
+- `!chucknorris category [category]` - Get a joke from a specific category. Replace `[category]` with the desired category.
+- `!chucknorris search [query]` - Search for jokes that match the query. Replace `[query]` with your search term.
+
+Enjoy the laughs!
+"""
 
 @client.event
 async def on_ready():
@@ -57,7 +78,10 @@ async def on_message(message):
     if message.author == client.user:
         return
 
-    if message.content.lower() == '!chucknorris':
+    if message.content.lower() == '!help':
+        await message.channel.send(help_message)
+
+    elif message.content.lower() == '!chucknorris':
         joke = get_random_joke()
         await message.channel.send(joke)
     
@@ -74,5 +98,36 @@ async def on_message(message):
         query = message.content[len('!chucknorris search '):].strip()
         jokes = search_jokes(query)
         await message.channel.send(jokes)
+
+        @client.event
+        async def on_message(message):
+         if message.author == client.user:
+           return
+
+    print(f"Received message: {message.content}")  # Debug line to see received messages
+
+    if message.content.lower() == '!help':
+        await message.channel.send(help_message)
+
+    elif message.content.lower() == '!chucknorris':
+        joke = get_random_joke()
+        await message.channel.send(joke)
+    
+    elif message.content.lower() == '!chucknorris category':
+        categories = get_categories()
+        await message.channel.send(f'Available categories: {categories}')
+    
+    elif message.content.lower().startswith('!chucknorris category '):
+        category = message.content[len('!chucknorris category '):].strip()
+        print(f"Fetching joke for category: {category}")  # Debug line to see category
+        joke = get_joke_by_category(category)
+        await message.channel.send(joke)
+    
+    elif message.content.lower().startswith('!chucknorris search '):
+        query = message.content[len('!chucknorris search '):].strip()
+        print(f"Searching for query: {query}")  # Debug line to see query
+        jokes = search_jokes(query)
+        await message.channel.send(jokes)
+
 
 client.run(TOKEN)

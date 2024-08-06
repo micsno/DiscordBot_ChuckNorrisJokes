@@ -2,6 +2,7 @@ import discord
 import requests
 import os
 import urllib.parse
+import random  # Import random module
 from dotenv import load_dotenv
 
 # Load environment variables from .env file
@@ -44,7 +45,6 @@ def get_joke_by_category(category):
 
 # Function to search for jokes with a specific query
 def search_jokes(query):
-    # URL-enkoodaa hakusana
     encoded_query = urllib.parse.quote(query)
     
     try:
@@ -53,7 +53,9 @@ def search_jokes(query):
         data = response.json()
         jokes = data.get('result')
         if jokes:
-            return '\n'.join([joke.get('value') for joke in jokes])
+            # Choose a random joke from the list
+            random_joke = random.choice(jokes)
+            return random_joke.get('value')
         else:
             return f"No jokes found for '{query}'. Try a different query!"
     except requests.RequestException as e:
@@ -100,7 +102,7 @@ async def on_message(message):
     
     elif message.content.lower().startswith('!chucknorris search '):
         query = message.content[len('!chucknorris search '):].strip()
-        jokes = search_jokes(query)
-        await message.channel.send(jokes)
+        joke = search_jokes(query)
+        await message.channel.send(joke)
 
 client.run(TOKEN)

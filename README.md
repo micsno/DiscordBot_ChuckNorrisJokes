@@ -2,6 +2,8 @@
 
 This is a simple Discord bot that fetches Chuck Norris jokes from the [Chuck Norris API](https://api.chucknorris.io/). The bot can send random jokes, fetch jokes by category, and perform text search for jokes.
 
+![Screenshot_1](https://github.com/micsno/DiscordBot_ChuckNorrisJokes/blob/main/chucknorris.png)
+
 ## Features
 
 - Get a random Chuck Norris joke

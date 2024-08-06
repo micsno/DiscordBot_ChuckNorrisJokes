@@ -99,35 +99,4 @@ async def on_message(message):
         jokes = search_jokes(query)
         await message.channel.send(jokes)
 
-        @client.event
-        async def on_message(message):
-         if message.author == client.user:
-           return
-
-    print(f"Received message: {message.content}")  # Debug line to see received messages
-
-    if message.content.lower() == '!help':
-        await message.channel.send(help_message)
-
-    elif message.content.lower() == '!chucknorris':
-        joke = get_random_joke()
-        await message.channel.send(joke)
-    
-    elif message.content.lower() == '!chucknorris category':
-        categories = get_categories()
-        await message.channel.send(f'Available categories: {categories}')
-    
-    elif message.content.lower().startswith('!chucknorris category '):
-        category = message.content[len('!chucknorris category '):].strip()
-        print(f"Fetching joke for category: {category}")  # Debug line to see category
-        joke = get_joke_by_category(category)
-        await message.channel.send(joke)
-    
-    elif message.content.lower().startswith('!chucknorris search '):
-        query = message.content[len('!chucknorris search '):].strip()
-        print(f"Searching for query: {query}")  # Debug line to see query
-        jokes = search_jokes(query)
-        await message.channel.send(jokes)
-
-
 client.run(TOKEN)

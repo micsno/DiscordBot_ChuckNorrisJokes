@@ -1,6 +1,7 @@
 import discord
 import requests
 import os
+import urllib.parse
 from dotenv import load_dotenv
 
 # Load environment variables from .env file
@@ -43,8 +44,11 @@ def get_joke_by_category(category):
 
 # Function to search for jokes with a specific query
 def search_jokes(query):
+    # URL-enkoodaa hakusana
+    encoded_query = urllib.parse.quote(query)
+    
     try:
-        response = requests.get(f'https://api.chucknorris.io/jokes/search?query={query}')
+        response = requests.get(f'https://api.chucknorris.io/jokes/search?query={encoded_query}')
         response.raise_for_status()  # Raises an exception for HTTP errors
         data = response.json()
         jokes = data.get('result')
